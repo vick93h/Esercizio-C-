@@ -11,31 +11,33 @@ buffer_t* buffer_t::buffer_init(unsigned int maxsize){
 void buffer_t::put_bloccante(buffer_t *buffer, msg_t *msg) {
     try {
         std::unique_lock<std::mutex> lock(mtx);
-        bufferNotFull.wait(lock,[&buffer]{return buffer->messages.size() < (buffer)->maxSize;});
+        bufferNotFull.wait(lock,[&buffer](){return buffer->messages.size() < (buffer)->maxSize;});
         (buffer)->messages.push(*msg);
-        bufferNotEmpty.notify_all();  // Notifica i consumatori che il buffer non è vuoto
-        lock.unlock();
-        //msg->msg_destroy(msg);
+        bufferNotEmpty.notify_one();  // Notifica i consumatori che il buffer non è vuoto
     }
-    catch(const std::exception& e){
-        std::cerr << "An exception occurred: " << e.what() << std::endl;
+    catch(const std::system_error& e){
+        std::cout << "Caught a system_error\n";
+        if (e.code() == std::errc::invalid_argument)
+            std::cout << "The error condition is 'std::errc::invalid_argument'\n";
+        std::cout << "The error description is '" << e.what() << "'\n";
+    }
 
-    }
+
 }
 msg_t*  buffer_t::get_bloccante(buffer_t* buffer){
     try {
         std::unique_lock<std::mutex> lock(mtx);
-        bufferNotEmpty.wait(lock, [&buffer] { return !buffer->messages.empty(); });  // Attende finché il buffer non è vuoto
-        msg_t *message=new msg_t();
-        *message = (buffer)->messages.front();
+        bufferNotEmpty.wait(lock, [&buffer]() { return !buffer->messages.empty(); });  // Attende finché il buffer non è vuoto
+        msg_t* message = new msg_t ((buffer)->messages.front());
         (buffer)->messages.pop();
-        bufferNotFull.notify_all();
-        lock.unlock();
-        //message.msg_destroy(&message);
+        bufferNotFull.notify_one();
         return message;
     }
-    catch(const std::exception& e){
-        std::cerr << "An exception occurred: " << e.what() << std::endl;
+    catch(const std::system_error& e){
+        std::cout << "Caught a system_error\n";
+        if (e.code() == std::errc::invalid_argument)
+            std::cout << "The error condition is 'std::errc::invalid_argument'\n";
+        std::cout << "The error description is '" << e.what() << "'\n";
         return nullptr;
     }
 }
