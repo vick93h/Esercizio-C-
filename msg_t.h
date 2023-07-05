@@ -10,12 +10,11 @@ public:
     msg_t(void* content_);
     void *msg_init(void *content_);
     void msg_destroy(msg_t *msg);
-
+    msg_t* msg_copy(const msg_t* msg);
 private:
     void *content;
 public:
     void *getContent() const;
-
     void setContent(void *content);
 };
 #endif //HOMEWORK_1_MSG_T_H

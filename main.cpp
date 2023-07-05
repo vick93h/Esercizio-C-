@@ -28,7 +28,7 @@ void producer(buffer_t * buffer, int producer_id,int numMessage) {
             msg_t* message=new msg_t();
             message->msg_init(new int(i));
             //message->setContent(new int(i));
-            buffer->put_bloccante(buffer, message);
+            buffer->put_non_bloccante(buffer, message);
             int* contentPtr = static_cast<int*>(message->getContent());
             int contentValue = *contentPtr;
             std::cout << "\nProducer " << producer_id << " pushed message -->" <<contentValue<< std::endl;
@@ -42,7 +42,7 @@ void producer(buffer_t * buffer, int producer_id,int numMessage) {
 void consumer(buffer_t *buffer, int consumer_id,int numMessage) {
     try {
         for (int i = 0; i < numMessage; i++) {
-            msg_t *message = buffer->get_bloccante(buffer);
+            msg_t *message = buffer->get_non_bloccante(buffer);
             int *contentPtr = static_cast<int *>(message->getContent());
             int contentValue = *contentPtr;
             std::cout << "\nConsumer " << consumer_id << " popped message -->" << contentValue << std::endl;

@@ -22,3 +22,12 @@ void *msg_t::getContent() const {
 void msg_t::setContent(void *content) {
     msg_t::content = content;
 }
+//devo fare una copia di msg e metto const per l' immutabilità di esso
+msg_t* msg_t::msg_copy(const msg_t* msg) {
+    if (msg == nullptr) {
+        return nullptr;
+    }
+    msg_t* newMsg = new msg_t();
+    *newMsg = *msg;
+    return newMsg;
+}
